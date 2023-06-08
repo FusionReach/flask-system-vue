@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { reactive, ref, watch } from "vue"
-import { createTableDataApi, deleteTableDataApi, updateTableDataApi, getTableDataApi } from "@/api/table"
+import { createUser, deleteUser, updateUser, getTableDataApi } from "@/api/table"
 import { type GetTableData } from "@/api/table/types/table"
 import { type FormInstance, type FormRules, ElMessage, ElMessageBox } from "element-plus"
 import { Search, Refresh, CirclePlus, Delete, Download, RefreshRight } from "@element-plus/icons-vue"
@@ -28,7 +28,7 @@ const handleCreate = () => {
   formRef.value?.validate((valid: boolean) => {
     if (valid) {
       if (currentUpdateId.value === undefined) {
-        createTableDataApi({
+        createUser({
           username: formData.username,
           password: formData.password
         }).then(() => {
@@ -37,9 +37,8 @@ const handleCreate = () => {
           getTableData()
         })
       } else {
-        updateTableDataApi({
-          id: currentUpdateId.value,
-          username: formData.username
+        updateUser({
+          password: formData.password
         }).then(() => {
           ElMessage.success("修改成功")
           dialogVisible.value = false
@@ -60,13 +59,13 @@ const resetForm = () => {
 
 //#region 删
 const handleDelete = (row: GetTableData) => {
-  ElMessageBox.confirm(`正在删除用户：${row.username}，确认删除？`, "提示", {
+  ElMessageBox.confirm(`正在禁用用户：${row.username}，确认禁用？`, "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
   }).then(() => {
-    deleteTableDataApi(row.id).then(() => {
-      ElMessage.success("删除成功")
+    deleteUser(row.username).then(() => {
+      ElMessage.success("禁用成功")
       getTableData()
     })
   })
@@ -76,7 +75,7 @@ const handleDelete = (row: GetTableData) => {
 //#region 改
 const currentUpdateId = ref<undefined | string>(undefined)
 const handleUpdate = (row: GetTableData) => {
-  currentUpdateId.value = row.id
+  currentUpdateId.value = row.username
   formData.username = row.username
   dialogVisible.value = true
 }
@@ -87,19 +86,19 @@ const tableData = ref<GetTableData[]>([])
 const searchFormRef = ref<FormInstance | null>(null)
 const searchData = reactive({
   username: "",
-  phone: ""
+  nickname: ""
 })
 const getTableData = () => {
   loading.value = true
   getTableDataApi({
-    currentPage: paginationData.currentPage,
-    size: paginationData.pageSize,
+    page: paginationData.currentPage,
+    page_size: paginationData.pageSize,
     username: searchData.username || undefined,
-    phone: searchData.phone || undefined
+    nickname: searchData.nickname || undefined
   })
     .then((res) => {
-      paginationData.total = res.data.total
-      tableData.value = res.data.list
+      paginationData.total = res.data.meta.count
+      tableData.value = res.data.data
     })
     .catch(() => {
       tableData.value = []
@@ -137,8 +136,8 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
         <el-form-item prop="username" label="用户名">
           <el-input v-model="searchData.username" placeholder="请输入" />
         </el-form-item>
-        <el-form-item prop="phone" label="手机号">
-          <el-input v-model="searchData.phone" placeholder="请输入" />
+        <el-form-item prop="nickname" label="昵称">
+          <el-input v-model="searchData.nickname" placeholder="请输入" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
@@ -171,19 +170,18 @@ watch([() => paginationData.currentPage, () => paginationData.pageSize], getTabl
               <el-tag v-else type="warning" effect="plain">{{ scope.row.roles }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="phone" label="手机号" align="center" />
-          <el-table-column prop="email" label="邮箱" align="center" />
+          <el-table-column prop="nickname" label="昵称" align="center" />
           <el-table-column prop="status" label="状态" align="center">
             <template #default="scope">
               <el-tag v-if="scope.row.status" type="success" effect="plain">启用</el-tag>
               <el-tag v-else type="danger" effect="plain">禁用</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="创建时间" align="center" />
+          <el-table-column prop="create_time" label="创建时间" align="center" />
           <el-table-column fixed="right" label="操作" width="150" align="center">
             <template #default="scope">
               <el-button type="primary" text bg size="small" @click="handleUpdate(scope.row)">修改</el-button>
-              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" text bg size="small" @click="handleDelete(scope.row)">禁用</el-button>
             </template>
           </el-table-column>
         </el-table>

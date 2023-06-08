@@ -2,27 +2,27 @@ import { request } from "@/utils/service"
 import type * as Table from "./types/table"
 
 /** 增 */
-export function createTableDataApi(data: Table.CreateTableRequestData) {
+export function createUser(data: Table.CreateUserRequestData) {
   return request({
-    url: "table",
+    url: "/user",
     method: "post",
     data
   })
 }
 
 /** 删 */
-export function deleteTableDataApi(id: string) {
+export function deleteUser(id: string) {
   return request({
-    url: `table/${id}`,
+    url: `/user/${id}`,
     method: "delete"
   })
 }
 
 /** 改 */
-export function updateTableDataApi(data: Table.UpdateTableRequestData) {
+export function updateUser(data: Table.UpdateUserRequestData) {
   return request({
-    url: "table",
-    method: "put",
+    url: "/user",
+    method: "post",
     data
   })
 }
@@ -30,7 +30,7 @@ export function updateTableDataApi(data: Table.UpdateTableRequestData) {
 /** 查 */
 export function getTableDataApi(params: Table.GetTableRequestData) {
   return request<Table.GetTableResponseData>({
-    url: "table",
+    url: "/user",
     method: "get",
     params
   })

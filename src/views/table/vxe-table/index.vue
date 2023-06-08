@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { nextTick, reactive, ref } from "vue"
 import { type ElMessageBoxOptions, ElMessageBox, ElMessage } from "element-plus"
-import { deleteTableDataApi, getTableDataApi } from "@/api/table"
+import { deleteUser, getTableDataApi } from "@/api/table"
 import { type GetTableResponseData } from "@/api/table/types/table"
 import RoleColumnSolts from "./tsx/RoleColumnSolts"
 import StatusColumnSolts from "./tsx/StatusColumnSolts"
@@ -22,13 +22,11 @@ defineOptions({
 
 //#region vxe-grid
 interface RowMeta {
-  id: string
   username: string
-  roles: string
-  phone: string
-  email: string
-  status: boolean
-  createTime: string
+  nickname: string
+  roles: string[]
+  status: number
+  create_time: string
   /** vxe-table 自动添加上去的属性 */
   _VXE_ID?: string
 }
@@ -51,10 +49,10 @@ const xGridOpt: VxeGridProps = reactive({
         }
       },
       {
-        field: "phone",
+        field: "nickname",
         itemRender: {
           name: "$input",
-          props: { placeholder: "手机号", clearable: true }
+          props: { placeholder: "昵称", clearable: true }
         }
       },
       {
@@ -100,12 +98,8 @@ const xGridOpt: VxeGridProps = reactive({
       slots: RoleColumnSolts
     },
     {
-      field: "phone",
-      title: "手机号"
-    },
-    {
-      field: "email",
-      title: "邮箱"
+      field: "nickname",
+      title: "昵称"
     },
     {
       field: "status",
@@ -113,7 +107,7 @@ const xGridOpt: VxeGridProps = reactive({
       slots: StatusColumnSolts
     },
     {
-      field: "createTime",
+      field: "create_time",
       title: "创建时间"
     },
     {
@@ -147,12 +141,12 @@ const xGridOpt: VxeGridProps = reactive({
             if (res && res.data) {
               const resData = res.data
               // 总数
-              if (Number.isInteger(resData.total)) {
-                total = resData.total
+              if (Number.isInteger(resData.meta.count)) {
+                total = resData.meta.count
               }
               // 分页数据
-              if (Array.isArray(resData.list)) {
-                result = resData.list
+              if (Array.isArray(resData.data)) {
+                result = resData.data
               }
             }
             xGridOpt.loading = false
@@ -162,9 +156,9 @@ const xGridOpt: VxeGridProps = reactive({
           /** 接口需要的参数 */
           const params = {
             username: form.username || undefined,
-            phone: form.phone || undefined,
-            size: page.pageSize,
-            currentPage: page.currentPage
+            permission: form.permission || undefined,
+            page_size: page.pageSize,
+            page: page.currentPage
           }
           /** 调用接口 */
           getTableDataApi(params).then(callback).catch(callback)
@@ -326,7 +320,7 @@ const crudStore = reactive({
   },
   /** 删除 */
   onDelete: (row: RowMeta) => {
-    const tip = `确定 <strong style='color:red;'>删除</strong> 用户 <strong style='color:#409eff;'>${row.username}</strong> ？`
+    const tip = `确定 <strong style='color:red;'>禁用</strong> 用户 <strong style='color:#409eff;'>${row.username}</strong> ？`
     const config: ElMessageBoxOptions = {
       type: "warning",
       showClose: true,
@@ -338,9 +332,9 @@ const crudStore = reactive({
     }
     ElMessageBox.confirm(tip, "提示", config)
       .then(() => {
-        deleteTableDataApi(row.id)
+        deleteUser(row.username)
           .then(() => {
-            ElMessage.success("删除成功")
+            ElMessage.success("禁用成功")
             crudStore.afterDelete()
             crudStore.commitQuery()
           })
@@ -374,7 +368,7 @@ const crudStore = reactive({
       <!-- 操作 -->
       <template #row-operate="{ row }">
         <el-button link type="primary" @click="crudStore.onShowModal(row)">修改</el-button>
-        <el-button link type="danger" @click="crudStore.onDelete(row)">删除</el-button>
+        <el-button link type="danger" @click="crudStore.onDelete(row)">禁用</el-button>
       </template>
     </vxe-grid>
     <!-- 弹窗 -->

@@ -5,7 +5,7 @@ const solts: VxeColumnPropTypes.Slots = {
     const cellValue = row[column.field]
     let type = "danger"
     let value = "禁用"
-    if (cellValue) {
+    if (cellValue == 1) {
       type = "success"
       value = "启用"
     }

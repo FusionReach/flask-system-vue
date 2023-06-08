@@ -1,36 +1,39 @@
-export interface CreateTableRequestData {
+export interface CreateUserRequestData {
   username: string
   password: string
 }
 
-export interface UpdateTableRequestData {
-  id: string
-  username: string
+export interface UpdateUserRequestData {
+  username?: string
   password?: string
 }
 
 export interface GetTableRequestData {
   /** 当前页码 */
-  currentPage: number
+  page: number
   /** 查询条数 */
-  size: number
+  page_size: number
   /** 查询参数：用户名 */
   username?: string
-  /** 查询参数：手机号 */
-  phone?: string
+  /** 查询参数：权限 */
+  nickname?: string
 }
 
 export interface GetTableData {
-  createTime: string
-  email: string
-  id: string
-  phone: string
-  roles: string
-  status: boolean
+  create_time: string
+  roles: string[]
+  status: number
   username: string
+  nickname: string
+}
+
+export interface Meta {
+  count: number
+  page: number
+  page_size: number
 }
 
 export type GetTableResponseData = ApiResponseData<{
-  list: GetTableData[]
-  total: number
+  data: GetTableData[]
+  meta: Meta
 }>
