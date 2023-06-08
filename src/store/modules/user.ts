@@ -59,12 +59,12 @@ export const useUserStore = defineStore("user", () => {
   }
   /** 登出 */
   const logout = async () => {
-    await logOutApi()
     removeToken()
     token.value = ""
     roles.value = []
     resetRouter()
     _resetTagsView()
+    await logOutApi()
   }
   /** 重置 Token */
   const resetToken = () => {
