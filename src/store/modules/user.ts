@@ -42,10 +42,13 @@ export const useUserStore = defineStore("user", () => {
   }
   /** 切换角色 */
   const changeRoles = async (role: string) => {
+    const username = role == "admin" ? "admin" : "test"
+    const password = role == "admin" ? "admin" : "test"
+    const { data } = await loginApi({ username, password })
     console.log(role + "has switched")
-    // const newToken = "token-" + role
-    // token.value = newToken
-    // setToken(newToken)
+    const newToken = data.token
+    token.value = newToken
+    setToken(newToken)
     await getInfo()
     permissionStore.setRoutes(roles.value)
     resetRouter()
