@@ -22,7 +22,7 @@ interface LayoutSettings {
 
 const layoutSettings: LayoutSettings = {
   showSettings: true,
-  showTagsView: false,
+  showTagsView: true,
   fixedHeader: true,
   showSidebarLogo: true,
   showNotify: true,

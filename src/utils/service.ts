@@ -19,6 +19,9 @@ function createService() {
     (response) => {
       // apiData 是 api 返回的数据
       const apiData = response.data
+      // 二进制数据则直接返回
+      const responseType = response.request?.responseType
+      if (responseType === "blob" || responseType === "arraybuffer") return apiData
       // 这个 code 是和后端约定的业务 code
       const code = apiData.code
       // 如果没有 code, 代表这不是项目后端开发的 api
@@ -32,7 +35,7 @@ function createService() {
           return apiData
         default:
           // 不是正确的 code
-          ElMessage.error(apiData.message || "Error")
+          ElMessage.error(apiData.msg || "Error")
           return Promise.reject(new Error("Error"))
       }
     },
@@ -49,16 +52,16 @@ function createService() {
           location.reload()
           break
         case 403:
-          error.message = "拒绝访问"
+          error.message = "没有权限访问该功能"
           break
         case 404:
-          error.message = "请求地址出错"
+          error.message = "没有找到所求内容"
           break
         case 408:
           error.message = "请求超时"
           break
         case 500:
-          error.message = "服务器内部错误"
+          error.message = "服务器发生错误"
           break
         case 501:
           error.message = "服务未实现"

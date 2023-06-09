@@ -30,7 +30,7 @@ export function updateUser(data: Table.UpdateUserRequestData) {
 /** 查 */
 export function getTableDataApi(params: Table.GetTableRequestData) {
   return request<Table.GetTableResponseData>({
-    url: "/user",
+    url: "/admin",
     method: "get",
     params
   })
